@@ -1,0 +1,32 @@
+{
+  "name": "orderflow-panel",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "record": "node scripts/record.ts"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "2.13.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-redux": "9.3.0",
+    "react-window": "2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "geist": "1.8.2",
+    "jsdom": "29.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

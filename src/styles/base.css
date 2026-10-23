@@ -1,0 +1,53 @@
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.4 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every number on screen goes through this class. */
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+button,
+select {
+  font: inherit;
+  color: inherit;
+  background: var(--well);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 2px 8px;
+  height: 24px;
+}
+
+button:hover,
+select:hover {
+  border-color: var(--faint);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}

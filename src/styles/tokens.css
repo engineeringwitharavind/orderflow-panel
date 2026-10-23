@@ -1,0 +1,50 @@
+/* Semantic tokens only. Components never use raw colours. Dark is the default;
+   light applies when the OS asks for it. */
+:root {
+  color-scheme: dark;
+  --bg: #111110;
+  --fg: #ededea;
+  --dim: #a3a29c;
+  --faint: #8a8983;
+  --line: #242422;
+  --line2: #3a3936;
+  --well: #171716;
+  --up: oklch(0.78 0.14 150);
+  --down: oklch(0.66 0.17 25);
+  /* Bars and flashes are the side colour at low alpha, so they stay legible behind text. */
+  --up-bar: oklch(0.78 0.14 150 / 0.16);
+  --down-bar: oklch(0.66 0.17 25 / 0.16);
+  --up-flash: oklch(0.78 0.14 150 / 0.32);
+  --down-flash: oklch(0.66 0.17 25 / 0.32);
+  --focus: var(--fg);
+
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-num: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --row-h: 20px;
+  --flash-ms: 180ms;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #fafaf8;
+    --fg: #171716;
+    --dim: #55544f;
+    --faint: #6b6a65;
+    --line: #e7e6e1;
+    --line2: #cfcec8;
+    --well: #f2f1ec;
+    --up: oklch(0.5 0.14 150);
+    --down: oklch(0.55 0.19 25);
+    --up-bar: oklch(0.5 0.14 150 / 0.14);
+    --down-bar: oklch(0.55 0.19 25 / 0.14);
+    --up-flash: oklch(0.5 0.14 150 / 0.28);
+    --down-flash: oklch(0.55 0.19 25 / 0.28);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --flash-ms: 0ms;
+  }
+}
