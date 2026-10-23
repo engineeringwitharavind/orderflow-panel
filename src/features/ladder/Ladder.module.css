@@ -110,19 +110,27 @@
   transform-origin: left;
 }
 
+/* A 3px marker on the price-facing edge, not a full-cell fill. Green when size grew, red when it shrank. */
 .flash {
   position: absolute;
-  inset: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
   opacity: 0;
   pointer-events: none;
+  background: var(--up);
+}
+
+.flash[data-dir='down'] {
+  background: var(--down);
 }
 
 .bid .flash {
-  background: var(--up-flash);
+  right: 0;
 }
 
 .ask .flash {
-  background: var(--down-flash);
+  left: 0;
 }
 
 .price {

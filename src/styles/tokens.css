@@ -11,11 +11,9 @@
   --well: #171716;
   --up: oklch(0.78 0.14 150);
   --down: oklch(0.66 0.17 25);
-  /* Bars and flashes are the side colour at low alpha, so they stay legible behind text. */
+  /* Bars are the side colour at low alpha, so they stay legible behind text. */
   --up-bar: oklch(0.78 0.14 150 / 0.16);
   --down-bar: oklch(0.66 0.17 25 / 0.16);
-  --up-flash: oklch(0.78 0.14 150 / 0.32);
-  --down-flash: oklch(0.66 0.17 25 / 0.32);
   --focus: var(--fg);
 
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -37,7 +35,5 @@
     --down: oklch(0.55 0.19 25);
     --up-bar: oklch(0.5 0.14 150 / 0.14);
     --down-bar: oklch(0.55 0.19 25 / 0.14);
-    --up-flash: oklch(0.5 0.14 150 / 0.28);
-    --down-flash: oklch(0.55 0.19 25 / 0.28);
   }
 }

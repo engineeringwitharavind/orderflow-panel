@@ -1,8 +1,10 @@
 import { memo, useEffect, useRef, type CSSProperties } from 'react';
+import { useStore } from 'react-redux';
 import { useAppSelector } from '../../app/hooks';
+import type { RootState } from '../../app/store';
 import { selectGroupedBook, selectLastTrade } from '../../market/selectors';
 import type { Ticks } from '../../market/types';
-import { flash } from './flash';
+import { COOLDOWN_MS, flash, isSignificant } from './flash';
 import styles from './Ladder.module.css';
 
 interface Props {
@@ -56,13 +58,26 @@ export const LadderRow = memo(function LadderRow({ price, priceLabel, qtyDecimal
   );
 });
 
-/** Flash when the value changes after mount. Mounting (a recentre) is not a change. */
+/**
+ * Flash only significant changes after mount, at most once per cooldown.
+ * Mounting (a recentre) is not a change. The largest size is read from the
+ * store at that moment rather than subscribed to, so the row doesn't re-render
+ * when another level's size changes.
+ */
 function useFlashOnChange(value: number) {
+  const store = useStore<RootState>();
   const ref = useRef<HTMLSpanElement>(null);
   const prev = useRef(value);
+  const lastFlashAt = useRef(-Infinity);
   useEffect(() => {
-    if (prev.current !== value) flash(ref.current);
+    const before = prev.current;
     prev.current = value;
-  }, [value]);
+    if (before === value) return;
+    const now = performance.now();
+    if (now - lastFlashAt.current < COOLDOWN_MS) return;
+    if (!isSignificant(before, value, selectGroupedBook(store.getState()).maxSize)) return;
+    lastFlashAt.current = now;
+    flash(ref.current, value > before ? 'up' : 'down');
+  }, [value, store]);
   return ref;
 }

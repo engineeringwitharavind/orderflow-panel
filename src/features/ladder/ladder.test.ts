@@ -76,3 +76,13 @@ describe('grouped book selector', () => {
     expect(selectLastTrade(store.getState())).toEqual({ row: 240800, side: 'sell' });
   });
 });
+
+describe('flash significance', () => {
+  it('ignores routine changes, flags large orders arriving or leaving', async () => {
+    const { isSignificant } = await import('./flash');
+    expect(isSignificant(1.0, 1.2, 40)).toBe(false); // 0.2 of 40: routine
+    expect(isSignificant(1.0, 12, 40)).toBe(true); // +11 ≥ 10: stacking
+    expect(isSignificant(15, 0, 40)).toBe(true); // -15: pulled
+    expect(isSignificant(0, 5, 0)).toBe(false); // empty book: never
+  });
+});
