@@ -1,0 +1,62 @@
+{
+  "label": "baseline-10x-full-r1",
+  "options": {
+    "url": "http://localhost:4174",
+    "label": "baseline-10x-full-r1",
+    "capture": "btcusdt-60s",
+    "speed": 10,
+    "throttle": 4,
+    "warmup": 75,
+    "seconds": 30,
+    "query": ""
+  },
+  "report": {
+    "seconds": 343.7,
+    "dispatchesPerSecond": 5.9,
+    "commits": {
+      "ladder": {
+        "count": 2025,
+        "perSecond": 5.9,
+        "p50": 1.4,
+        "p95": 2.8,
+        "max": 17.9,
+        "totalMs": 2986
+      },
+      "app": {
+        "count": 2025,
+        "perSecond": 5.9,
+        "p50": 2,
+        "p95": 43,
+        "max": 75.4,
+        "totalMs": 30127
+      },
+      "tape": {
+        "count": 826,
+        "perSecond": 2.4,
+        "p50": 31.7,
+        "p95": 50.7,
+        "max": 72.6,
+        "totalMs": 27121
+      }
+    },
+    "frames": {
+      "count": 649,
+      "perSecond": 1.9,
+      "p50": 516.6,
+      "p95": 733.3,
+      "max": 999.9,
+      "totalMs": 342937,
+      "over33ms": 647
+    },
+    "longFrames": {
+      "count": 378,
+      "blockingMs": 117727,
+      "workMs": 49144,
+      "rafMs": 48,
+      "renderMs": 87435
+    },
+    "heapMB": 32.7,
+    "domNodes": 12788
+  },
+  "measuredAt": "2026-10-23T16:54:33.660Z"
+}
