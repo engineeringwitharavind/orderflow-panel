@@ -20,7 +20,8 @@ import { TAB_ID } from './workspace/tabId';
 import { initialWorkspace } from './workspace/workspaceSlice';
 
 const params = new URLSearchParams(location.search);
-const batchMode: BatchMode = params.get('batch') === 'off' ? 'immediate' : 'frame';
+// BASELINE: no batching. Every socket message is its own dispatch.
+const batchMode: BatchMode = 'immediate';
 // ?replay=btcusdt-60s plays public/captures/btcusdt-60s.json instead of connecting to Binance.
 const replayName = params.get('replay')?.replace(/[^a-z0-9-]/gi, '') || null;
 const replay = replayName ? { name: replayName, speed: Number(params.get('speed')) || 1 } : null;

@@ -2,9 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { useStore } from 'react-redux';
 import { useAppSelector } from '../../app/hooks';
 import type { RootState } from '../../app/store';
-import { useStoreEffect } from '../../app/useStoreEffect';
 import { useBookFeed } from '../../market/feeds';
-import { selectGroupedBook } from '../../market/selectors';
+import { groupAsk } from './ladderMath';
 import { getSpec } from '../../market/symbols';
 import type { Ticks } from '../../market/types';
 import panel from '../layout/Panel.module.css';
@@ -88,10 +87,21 @@ function LadderBody({ symbol, grouping }: { symbol: string; grouping: number }) 
 
   // Bar scale: one CSS variable on the grid, written directly. When the largest
   // size changes, no row re-renders; the browser rescales every bar.
-  useStoreEffect(
-    (s) => selectGroupedBook(s).maxSize,
-    (max) => gridRef.current?.style.setProperty('--max', String(max || 1)),
-  );
+  // BASELINE: subscribe to the whole book and group it inline on every render.
+  const book = useAppSelector((s) => s.market.book);
+  const lastTrade = useAppSelector((s) => s.market.trades.items[s.market.trades.items.length - 1]);
+  const bids = new Map<number, number>();
+  const asks = new Map<number, number>();
+  for (const k in book.bids) {
+    const r = groupBid(Number(k), grouping);
+    bids.set(r, (bids.get(r) ?? 0) + book.bids[k]!);
+  }
+  for (const k in book.asks) {
+    const r = groupAsk(Number(k), grouping);
+    asks.set(r, (asks.get(r) ?? 0) + book.asks[k]!);
+  }
+  const maxSize = Math.max(0, ...bids.values(), ...asks.values());
+  const lastRow = lastTrade ? (lastTrade.side === 'buy' ? groupAsk(lastTrade.price, grouping) : groupBid(lastTrade.price, grouping)) : null;
 
   const prices = anchor === null || rows === 0 ? [] : windowPrices(anchor, rows, grouping);
 
@@ -153,13 +163,17 @@ function LadderBody({ symbol, grouping }: { symbol: string; grouping: number }) 
         {prices.length === 0 ? (
           <div className={styles.empty}>Waiting for the book…</div>
         ) : (
-          prices.map((p) => (
+          prices.map((p, i) => (
             <LadderRow
-              key={p}
+              key={i}
               price={p}
               priceLabel={(p * tickSize).toFixed(priceDecimals)}
               qtyDecimals={qtyDecimals}
               active={p === active}
+              bid={bids.get(p) ?? 0}
+              ask={asks.get(p) ?? 0}
+              maxSize={maxSize}
+              lastSide={lastRow === p ? lastTrade!.side : null}
             />
           ))
         )}

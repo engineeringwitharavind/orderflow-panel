@@ -167,3 +167,19 @@
   border: 1px solid var(--line2);
   border-radius: 4px;
 }
+
+/* BASELINE: width-sized bars (layout on every change). */
+.barNaive {
+  position: absolute;
+  inset: 1px auto 1px auto;
+}
+
+.bid .barNaive {
+  right: 0;
+  background: var(--up-bar);
+}
+
+.ask .barNaive {
+  left: 0;
+  background: var(--down-bar);
+}

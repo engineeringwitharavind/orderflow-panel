@@ -1,8 +1,6 @@
-import { memo, useEffect, useRef, type CSSProperties } from 'react';
-import { useStore } from 'react-redux';
-import { useAppSelector } from '../../app/hooks';
-import type { RootState } from '../../app/store';
-import { selectGroupedBook, selectLastTrade } from '../../market/selectors';
+// BASELINE (naive): no memo, no per-row subscription. Sizes arrive as props from a
+// parent that re-renders on every book update; bars are sized with width.
+import { useEffect, useRef } from 'react';
 import type { Ticks } from '../../market/types';
 import { COOLDOWN_MS, flash, isSignificant } from './flash';
 import styles from './Ladder.module.css';
@@ -12,37 +10,22 @@ interface Props {
   priceLabel: string;
   qtyDecimals: number;
   active: boolean;
+  bid: number;
+  ask: number;
+  maxSize: number;
+  lastSide: 'buy' | 'sell' | null;
 }
 
 export const rowId = (price: Ticks) => `ladder-row-${price}`;
 
-/**
- * One price level. Each row subscribes to its own two numbers, so a book
- * update re-renders only rows whose size actually changed. Rows are keyed by
- * price: on recentre, rows for prices still on screen keep their instance
- * (and don't flash); only new prices mount.
- */
-export const LadderRow = memo(function LadderRow({ price, priceLabel, qtyDecimals, active }: Props) {
-  const bid = useAppSelector((s) => selectGroupedBook(s).bids.get(price) ?? 0);
-  const ask = useAppSelector((s) => selectGroupedBook(s).asks.get(price) ?? 0);
-  const lastSide = useAppSelector((s) => {
-    const last = selectLastTrade(s);
-    return last && last.row === price ? last.side : null;
-  });
-
-  const bidFlash = useFlashOnChange(bid);
-  const askFlash = useFlashOnChange(ask);
-
+export function LadderRow({ price, priceLabel, qtyDecimals, active, bid, ask, maxSize, lastSide }: Props) {
+  const bidFlash = useFlashOnChange(bid, maxSize);
+  const askFlash = useFlashOnChange(ask, maxSize);
+  const pct = (v: number) => `${maxSize ? (v / maxSize) * 100 : 0}%`;
   return (
-    <div
-      role="row"
-      id={rowId(price)}
-      className={styles.row}
-      data-price={price}
-      data-active={active || undefined}
-    >
+    <div role="row" id={rowId(price)} className={styles.row} data-price={price} data-active={active || undefined}>
       <div role="gridcell" className={`${styles.size} ${styles.bid}`}>
-        <span className={styles.bar} style={{ '--size': bid } as CSSProperties} aria-hidden />
+        <span className={styles.barNaive} style={{ width: pct(bid) }} aria-hidden />
         <span ref={bidFlash} className={styles.flash} aria-hidden />
         <span className="num">{bid ? bid.toFixed(qtyDecimals) : ''}</span>
       </div>
@@ -50,22 +33,15 @@ export const LadderRow = memo(function LadderRow({ price, priceLabel, qtyDecimal
         {priceLabel}
       </div>
       <div role="gridcell" className={`${styles.size} ${styles.ask}`}>
-        <span className={styles.bar} style={{ '--size': ask } as CSSProperties} aria-hidden />
+        <span className={styles.barNaive} style={{ width: pct(ask) }} aria-hidden />
         <span ref={askFlash} className={styles.flash} aria-hidden />
         <span className="num">{ask ? ask.toFixed(qtyDecimals) : ''}</span>
       </div>
     </div>
   );
-});
+}
 
-/**
- * Flash only significant changes after mount, at most once per cooldown.
- * Mounting (a recentre) is not a change. The largest size is read from the
- * store at that moment rather than subscribed to, so the row doesn't re-render
- * when another level's size changes.
- */
-function useFlashOnChange(value: number) {
-  const store = useStore<RootState>();
+function useFlashOnChange(value: number, maxSize: number) {
   const ref = useRef<HTMLSpanElement>(null);
   const prev = useRef(value);
   const lastFlashAt = useRef(-Infinity);
@@ -75,9 +51,9 @@ function useFlashOnChange(value: number) {
     if (before === value) return;
     const now = performance.now();
     if (now - lastFlashAt.current < COOLDOWN_MS) return;
-    if (!isSignificant(before, value, selectGroupedBook(store.getState()).maxSize)) return;
+    if (!isSignificant(before, value, maxSize)) return;
     lastFlashAt.current = now;
     flash(ref.current, value > before ? 'up' : 'down');
-  }, [value, store]);
+  }, [value, maxSize]);
   return ref;
 }
