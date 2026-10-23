@@ -59,8 +59,18 @@ export class ReplaySocket implements SocketLike {
 
   private readonly subscribed = new Set<string>();
   private timer: ReturnType<typeof setTimeout> | null = null;
+  // A real socket delivers each message as its own task. Emitting several in one
+  // timer callback would let React's automatic batching merge their renders and
+  // hide what per-frame batching is worth. A MessageChannel post is a task with
+  // no 4 ms nested-timer clamp, so each message goes out as its own task.
+  private readonly queue: string[] = [];
+  private readonly channel = new MessageChannel();
 
   constructor(captureUrl: string, private readonly speed = 1) {
+    this.channel.port1.onmessage = () => {
+      const raw = this.queue.shift();
+      if (raw !== undefined) this.emit(raw);
+    };
     load(captureUrl).then(
       (data) => {
         if (this.readyState !== 0) return; // closed before the capture loaded
@@ -89,6 +99,14 @@ export class ReplaySocket implements SocketLike {
     this.readyState = 3;
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+    this.queue.length = 0;
+    this.channel.port1.close();
+  }
+
+  /** One task per message, like a real socket. */
+  private deliver(raw: string) {
+    this.queue.push(raw);
+    this.channel.port2.postMessage(null);
   }
 
   private emit(raw: string) {
@@ -107,10 +125,10 @@ export class ReplaySocket implements SocketLike {
       while (i < frames.length && frames[i]!.t <= elapsed) {
         const f = frames[i++]!;
         if (!this.subscribed.has(f.stream)) continue;
-        if (loop === 0 || !f.trade) this.emit(f.raw);
+        if (loop === 0 || !f.trade) this.deliver(f.raw);
         else {
           const data = { ...f.trade, a: Number(f.trade.a) + loop * (maxTradeId + 1), T: Date.now() };
-          this.emit(JSON.stringify({ stream: f.stream, data }));
+          this.deliver(JSON.stringify({ stream: f.stream, data }));
         }
       }
       if (i >= frames.length) {
