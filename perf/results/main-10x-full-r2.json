@@ -1,0 +1,62 @@
+{
+  "label": "main-10x-full-r2",
+  "options": {
+    "url": "http://localhost:4173",
+    "label": "main-10x-full-r2",
+    "capture": "btcusdt-60s",
+    "speed": 10,
+    "throttle": 4,
+    "warmup": 75,
+    "seconds": 30,
+    "query": ""
+  },
+  "report": {
+    "seconds": 30,
+    "dispatchesPerSecond": 24.2,
+    "commits": {
+      "ladder": {
+        "count": 732,
+        "perSecond": 24.4,
+        "p50": 0.3,
+        "p95": 4.3,
+        "max": 9,
+        "totalMs": 547
+      },
+      "tape": {
+        "count": 408,
+        "perSecond": 13.6,
+        "p50": 1.7,
+        "p95": 3.2,
+        "max": 20.7,
+        "totalMs": 742
+      },
+      "app": {
+        "count": 732,
+        "perSecond": 24.4,
+        "p50": 1.7,
+        "p95": 4.6,
+        "max": 21.9,
+        "totalMs": 1301
+      }
+    },
+    "frames": {
+      "count": 916,
+      "perSecond": 30.5,
+      "p50": 16.8,
+      "p95": 66.7,
+      "max": 133.3,
+      "totalMs": 29992,
+      "over33ms": 317
+    },
+    "longFrames": {
+      "count": 184,
+      "blockingMs": 2450,
+      "workMs": 1441,
+      "rafMs": 9725,
+      "renderMs": 484
+    },
+    "heapMB": 19.9,
+    "domNodes": 600
+  },
+  "measuredAt": "2026-10-23T16:16:25.484Z"
+}
