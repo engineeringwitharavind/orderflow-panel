@@ -12,51 +12,51 @@
   },
   "report": {
     "seconds": 30,
-    "dispatchesPerSecond": 11.8,
+    "dispatchesPerSecond": 11.9,
     "commits": {
       "ladder": {
-        "count": 272,
+        "count": 274,
         "perSecond": 9.1,
         "p50": 0.5,
-        "p95": 1.6,
-        "max": 9.6,
-        "totalMs": 182
+        "p95": 1.4,
+        "max": 14,
+        "totalMs": 199
       },
       "tape": {
-        "count": 79,
-        "perSecond": 2.6,
-        "p50": 2.2,
-        "p95": 5.4,
-        "max": 6.4,
-        "totalMs": 191
+        "count": 82,
+        "perSecond": 2.7,
+        "p50": 2.1,
+        "p95": 4.2,
+        "max": 6.2,
+        "totalMs": 186
       },
       "app": {
-        "count": 306,
-        "perSecond": 10.2,
-        "p50": 0.7,
-        "p95": 4.1,
-        "max": 11.6,
-        "totalMs": 378
+        "count": 312,
+        "perSecond": 10.4,
+        "p50": 0.8,
+        "p95": 4.5,
+        "max": 15.5,
+        "totalMs": 388
       }
     },
     "frames": {
-      "count": 1765,
-      "perSecond": 58.8,
+      "count": 1769,
+      "perSecond": 58.9,
       "p50": 16.7,
       "p95": 16.8,
-      "max": 66.7,
-      "totalMs": 29989,
-      "over33ms": 10
+      "max": 83.3,
+      "totalMs": 29998,
+      "over33ms": 7
     },
     "longFrames": {
-      "count": 6,
-      "blockingMs": 59,
-      "workMs": 72,
-      "rafMs": 194,
-      "renderMs": 93
+      "count": 2,
+      "blockingMs": 25,
+      "workMs": 15,
+      "rafMs": 84,
+      "renderMs": 25
     },
-    "heapMB": 7,
+    "heapMB": 7.2,
     "domNodes": 600
   },
-  "measuredAt": "2026-10-23T17:11:45.719Z"
+  "measuredAt": "2026-10-23T17:44:21.409Z"
 }

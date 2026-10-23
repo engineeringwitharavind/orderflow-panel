@@ -95,7 +95,8 @@ flowchart LR
 
 **Method.** Measurements use a production build with React's profiler kept on
 (`npm run build:profile`) and a **real 60 s BTCUSDT capture**
-(`public/captures/btcusdt-60s.json`) replayed identically for every run, in headless
+(`public/captures/btcusdt-60s.json`) replayed identically for every run, one message per task as a real socket delivers
+them, in headless
 Chromium at **4× CPU throttling** (like DevTools' "4× slowdown", roughly a mid-range
 laptop). Each run has a warmup and a 30 s window. The tables show the median of 3 runs.
 Three configurations:
@@ -103,12 +104,51 @@ Three configurations:
 - **Baseline** ([`baseline` branch](https://github.com/engineeringwitharavind/orderflow-panel/tree/baseline)):
   same features, no optimisations. One dispatch per message; the ladder body subscribes to
   the whole book and passes sizes to non-memoised rows; bars sized by `width`; every trade
-  is a DOM row.
+  is a DOM row; and the original Immer-wrapped market reducer.
 - **Main, batching off** (`?batch=off`): every optimisation except per-frame batching, to
   isolate what batching alone buys.
 - **Main:** everything.
 
-PERF_TABLES
+**What each change bought** (busy market, 10×, tape full):
+
+- **Everything together:** frames rendered went from **1.9/s to 55.2/s**, and frame interval p95 from **667 ms to 33 ms**. The naive build also **fell behind the market**: it handled 6 messages a second while the feed sent about 170, so it never even filled its tape (its DOM peaked at 12,788 nodes against main's constant 600).
+- **Per-frame batching alone** (main vs main with batching off, same code otherwise): **15.3 → 55.2 frames/s**, main thread blocked **43.5% → 0.3%** of the time, React commits **147 → 40 a second**.
+- **In a quiet market** every version keeps roughly 55–59 frames/s, but the optimised build has **3 long frames instead of 44** and is blocked **0.2% instead of 3.8%** of the time. That's headroom for a busier minute.
+- **Commit time p95 is lower with batching off** (2.3 vs 3.9 ms) because each commit handles one message instead of a frame's worth. Per-commit cost is the wrong thing to minimise; total main-thread time is the right one.
+
+#### Busy market: the same capture at 10×, tape full (median of 3 runs, 4× CPU throttle)
+
+| Metric | Baseline (naive) | Main, batching off | Main |
+|---|---:|---:|---:|
+| **Frames rendered / s** | 1.9 | 15.3 | 55.2 |
+| **Frame interval p95 (ms)** | 666.7 | 133.3 | 33.3 |
+| Main thread blocked (% of window) | 18.1 | 43.5 | 0.3 |
+| Redux dispatches / s | 6 | 172 | 43.2 |
+| React commits / s | 6 | 146.7 | 40.1 |
+| Commit time p95 (ms) | 43 | 2.3 | 3.9 |
+| Ladder commits / s | 6 | 96.6 | 39.9 |
+| Tape commits / s | 2.4 | 69.5 | 16.3 |
+| Long frames (> 50 ms) | 220 | 242 | 13 |
+| DOM nodes | 12,788 | 600 | 600 |
+| JS heap (MB) | 15.4 | 23.7 | 12.8 |
+| Measurement window (s) | 337.5 | 30.1 | 30 |
+
+#### Quiet market: real capture at 1×, ~7 trades/s (median of 3 runs, 4× CPU throttle)
+
+| Metric | Baseline (naive) | Main, batching off | Main |
+|---|---:|---:|---:|
+| **Frames rendered / s** | 53.3 | 55.5 | 59.1 |
+| **Frame interval p95 (ms)** | 16.8 | 16.8 | 16.8 |
+| Main thread blocked (% of window) | 3.8 | 3.9 | 0.2 |
+| Redux dispatches / s | 17.6 | 17.6 | 11.9 |
+| React commits / s | 17.7 | 16.6 | 10.4 |
+| Commit time p95 (ms) | 6.6 | 3.7 | 4 |
+| Ladder commits / s | 17.7 | 9.9 | 9.2 |
+| Tape commits / s | 7.6 | 8.7 | 2.7 |
+| Long frames (> 50 ms) | 44 | 24 | 3 |
+| DOM nodes | 1,578 | 600 | 600 |
+| JS heap (MB) | 9.1 | 7 | 7.2 |
+| Measurement window (s) | 30 | 30 | 30 |
 
 Reproduce:
 
