@@ -4,8 +4,11 @@
 //   npm run record                     # BTCUSDT, 60 s
 //   npm run record -- ETHUSDT 120      # symbol, seconds
 //
-// Needs Node 22+ (built-in WebSocket). Writes captures/<symbol>-<seconds>s.json.
+// Uses Node's built-in WebSocket (Node 22+), or the `ws` package on older Node.
+// Writes captures/<symbol>-<seconds>s.json.
 import { mkdirSync, writeFileSync } from 'node:fs';
+
+const WebSocketImpl = globalThis.WebSocket ?? (await import('ws')).default;
 
 const symbol = (process.argv[2] ?? 'BTCUSDT').toUpperCase();
 const seconds = Number(process.argv[3] ?? 60);
@@ -13,14 +16,9 @@ const s = symbol.toLowerCase();
 const streams = [`${s}@depth20@100ms`, `${s}@aggTrade`];
 const urls = ['wss://data-stream.binance.vision/stream', 'wss://stream.binance.com:9443/stream'];
 
-if (typeof WebSocket === 'undefined') {
-  console.error('This script needs Node 22 or newer (global WebSocket).');
-  process.exit(1);
-}
-
 function record(url) {
   return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`${url}?streams=${streams.join('/')}`);
+    const ws = new WebSocketImpl(`${url}?streams=${streams.join('/')}`);
     const messages = [];
     let t0 = 0;
     const timeout = setTimeout(() => reject(new Error(`no connection to ${url} within 10 s`)), 10_000);
