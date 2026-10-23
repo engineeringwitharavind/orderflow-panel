@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc",
     "test": "vitest run",
-    "record": "node scripts/record.ts"
+    "record": "node scripts/record.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "2.13.0",
