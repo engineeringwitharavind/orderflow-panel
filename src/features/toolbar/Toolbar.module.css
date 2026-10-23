@@ -1,0 +1,29 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dim);
+}
+
+.group {
+  display: flex;
+  gap: 4px;
+}
+
+.group button[aria-pressed='true'] {
+  border-color: var(--faint);
+  color: var(--fg);
+}
+
+.group button[aria-pressed='false'] {
+  color: var(--faint);
+}

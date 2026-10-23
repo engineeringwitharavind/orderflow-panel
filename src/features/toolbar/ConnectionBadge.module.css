@@ -1,0 +1,23 @@
+.badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dim);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--faint);
+}
+
+.badge[data-status='open'] .dot {
+  background: var(--up);
+}
+
+.badge[data-status='reconnecting'] .dot,
+.badge[data-status='offline'] .dot {
+  background: var(--down);
+}

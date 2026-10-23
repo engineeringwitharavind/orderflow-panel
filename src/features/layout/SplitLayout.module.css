@@ -1,0 +1,33 @@
+.split,
+.single {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+}
+
+.split {
+  --divider: 9px;
+  grid-template-columns: calc(var(--split) * (100% - var(--divider))) var(--divider) minmax(0, 1fr);
+}
+
+.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.divider {
+  cursor: col-resize;
+  touch-action: none;
+  position: relative;
+}
+
+.divider::after {
+  content: '';
+  position: absolute;
+  inset: 0 4px;
+  background: var(--line);
+}
+
+.divider:hover::after,
+.divider:focus-visible::after {
+  background: var(--line2);
+}
