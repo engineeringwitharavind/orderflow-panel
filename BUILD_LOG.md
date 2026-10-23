@@ -17,9 +17,11 @@ at the change.
   - Calmer ladder flashes: yes, after seeing the live book.
   - A flash on/off setting: no (README next step).
 - **Review gates.** I stopped after Block 2 to learn the domain (order book, aggressor
-  side, ticks, DOM ladder) and the data flow before more code was written. I checked
-  every block on live Binance data myself, because the agent's sandbox couldn't reach
-  Binance.
+  side, ticks, DOM ladder) and the data flow before more code was written. The agent's
+  sandbox couldn't reach Binance (its network policy blocked the exchange), so it tested
+  every block with Playwright standing in for the WebSocket. I then checked each block
+  on live Binance data myself, and recorded the 60 s capture used for the numbers on my
+  machine.
 
 ## What went wrong, and how it was caught
 
@@ -46,9 +48,3 @@ Several test failures turned out to be mistakes in the tests, not the code: a ha
 message still in flight, the watchdog's check interval, Map ordering, and one ask grouped
 into the wrong row. Each was diagnosed before anything was changed, and only the test was
 fixed.
-
-## What the AI could not do
-
-- **Reach Binance.** Its sandbox's network policy blocked the exchange. Every block was
-  tested there with Playwright standing in for the WebSocket, then checked on live data by
-  me, and the 60 s capture used for the numbers was recorded on my machine.
