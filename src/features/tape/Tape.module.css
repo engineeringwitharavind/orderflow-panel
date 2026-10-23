@@ -1,0 +1,116 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.meta {
+  color: var(--faint);
+  font-weight: 400;
+}
+
+/* Fixed column widths: numbers never push each other around. */
+.columns,
+.row {
+  display: grid;
+  grid-template-columns: 13ch 5ch minmax(9ch, 1fr) minmax(9ch, 1fr);
+  column-gap: 12px;
+  padding: 0 10px;
+}
+
+.columns {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 11px;
+  color: var(--faint);
+  border-bottom: 1px solid var(--line);
+}
+
+.right {
+  text-align: right;
+}
+
+.body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.list {
+  height: 100%;
+  outline: none;
+}
+
+.list:focus-visible:not([aria-activedescendant]) {
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+
+.row {
+  height: 20px;
+  line-height: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+
+.list:focus .row[data-active] {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.time {
+  color: var(--faint);
+}
+
+.side {
+  color: var(--faint);
+}
+
+.price,
+.qty {
+  text-align: right;
+}
+
+.row[data-side='buy'] .price,
+.row[data-side='buy'] .qty {
+  color: var(--up);
+}
+
+.row[data-side='sell'] .price,
+.row[data-side='sell'] .qty {
+  color: var(--down);
+}
+
+/* Large prints: bolder and tinted, so block trades stand out without motion. */
+.row[data-large] {
+  font-weight: 600;
+}
+
+.row[data-large][data-side='buy'] {
+  background: var(--up-bar);
+}
+
+.row[data-large][data-side='sell'] {
+  background: var(--down-bar);
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  padding: 12px;
+  color: var(--faint);
+  pointer-events: none;
+}
+
+.header {
+  align-items: center;
+}
+
+/* Same height as the header's text line, so pausing doesn't shift the list. */
+.resume {
+  height: 17px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--fg);
+}
