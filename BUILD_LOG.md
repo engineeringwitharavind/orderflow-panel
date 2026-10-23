@@ -16,7 +16,6 @@ at the change.
   - A deliberately naive baseline for honest before/after numbers: yes.
   - Calmer ladder flashes: yes, after seeing the live book.
   - A flash on/off setting: no (README next step).
-  - Pine Script toolkit, trade journal and Rust terminal: settled, and kept out of scope.
 - **Review gates.** I stopped after Block 2 to learn the domain (order book, aggressor
   side, ticks, DOM ladder) and the data flow before more code was written. I checked
   every block on live Binance data myself, because the agent's sandbox couldn't reach
@@ -50,7 +49,6 @@ fixed.
 
 ## What the AI could not do
 
-- **Create the GitHub repo.** The integration returned 403, so I created it.
 - **Reach Binance.** Its sandbox's network policy blocked the exchange. Every block was
   tested there with Playwright standing in for the WebSocket, then checked on live data by
   me, and the 60 s capture used for the numbers was recorded on my machine.
