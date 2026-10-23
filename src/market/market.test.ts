@@ -143,3 +143,24 @@ describe('FrameBatcher', () => {
     expect(store.getState().market.book.bestBid).toBeNull();
   });
 });
+
+describe('market reducer purity (no Immer to protect it)', () => {
+  it('never mutates the previous state', () => {
+    const store = setupStore();
+    store.dispatch(frameFlushed({ symbol: 'BTCUSDT', book, trades: [trade(1)] }));
+    const before = store.getState().market;
+    const itemsBefore = before.trades.items;
+    store.dispatch(frameFlushed({ symbol: 'BTCUSDT', book: { ...book, bids: [[99, 1]] }, trades: [trade(2)] }));
+    expect(itemsBefore).toHaveLength(1);
+    expect(before.book.bestBid).toBe(101);
+    expect(store.getState().market).not.toBe(before);
+  });
+
+  it('returns the same state object when a frame changes nothing', () => {
+    const store = setupStore();
+    store.dispatch(frameFlushed({ symbol: 'BTCUSDT', book: null, trades: [trade(1)] }));
+    const before = store.getState().market;
+    store.dispatch(frameFlushed({ symbol: 'BTCUSDT', book: null, trades: [trade(1)] })); // duplicate only
+    expect(store.getState().market).toBe(before);
+  });
+});

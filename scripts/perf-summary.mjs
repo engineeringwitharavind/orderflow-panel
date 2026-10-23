@@ -24,16 +24,16 @@ const median = (values) => {
 const pick = (reports, fn) => median(reports.map((r) => { try { return fn(r); } catch { return null; } }));
 
 const rows = [
+  // Frames actually rendered: a frozen page renders few frames, so "slow frames" alone would flatter it.
+  ['**Frames rendered / s**', (r) => Math.round((r.frames.count / r.seconds) * 10) / 10],
+  ['**Main-thread blocking (ms / 30 s)**', (r) => r.longFrames.blockingMs],
   ['Redux dispatches / s', (r) => r.dispatchesPerSecond],
   ['React commits / s', (r) => r.commits.app.perSecond],
   ['Commit time p95 (ms)', (r) => r.commits.app.p95],
-  ['Total React render time (ms / 30 s)', (r) => r.commits.app.totalMs],
   ['Ladder commits / s', (r) => r.commits.ladder?.perSecond ?? 0],
   ['Tape commits / s', (r) => r.commits.tape?.perSecond ?? 0],
   ['Frame interval p95 (ms)', (r) => r.frames.p95],
-  ['Frames over 33 ms', (r) => r.frames.over33ms],
   ['Long frames (> 50 ms)', (r) => r.longFrames.count],
-  ['Main-thread blocking (ms / 30 s)', (r) => r.longFrames.blockingMs],
   ['DOM nodes', (r) => r.domNodes],
   ['JS heap (MB)', (r) => r.heapMB],
 ];

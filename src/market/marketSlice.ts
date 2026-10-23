@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAction, type UnknownAction } from '@reduxjs/toolkit';
 import { statusChanged } from '../ws/connectionSlice';
 import { DEFAULT_SYMBOL } from './symbols';
 import type { BookSnapshot, Ticks, Trade } from './types';
@@ -55,41 +55,38 @@ function toBook(snapshot: BookSnapshot): Book {
   };
 }
 
-const marketSlice = createSlice({
-  name: 'market',
-  initialState: initialMarket(),
-  reducers: {
-    // Written as "return a new state" rather than mutating a draft: the data is
-    // replaced wholesale every frame, so there is nothing for Immer to diff.
-    frameFlushed(state, action: PayloadAction<Frame>): MarketState {
-      const { symbol, book, trades } = action.payload;
-      // A frame for a symbol we've switched away from is dropped, not merged.
-      if (symbol !== state.symbol) return state;
+export const frameFlushed = createAction<Frame>('market/frameFlushed');
 
-      let nextTrades = state.trades;
-      const fresh = trades.filter((t) => t.id > state.trades.lastId);
-      if (fresh.length) {
-        const merged = state.trades.items.concat(fresh);
-        nextTrades = {
-          items: merged.length > TAPE_CAPACITY ? merged.slice(merged.length - TAPE_CAPACITY) : merged,
-          seq: state.trades.seq + fresh.length,
-          lastId: fresh[fresh.length - 1]!.id,
-        };
-      }
-      return {
-        symbol: state.symbol,
-        book: book ? toBook(book) : state.book,
-        trades: nextTrades,
+/**
+ * A plain reducer, deliberately not createSlice. RTK wraps slice reducers in
+ * Immer, so `state` would be a proxy: `state.trades.items.concat(...)` reads
+ * every one of the 5,000 trades through it, creating a child draft per trade,
+ * and Immer then walks them all again to finalise. Profiling showed that as the
+ * single largest cost at 10x. This slice is replaced wholesale every frame, so
+ * Immer buys nothing here; the other slices keep it.
+ */
+export default function marketReducer(state: MarketState = initialMarket(), action: UnknownAction): MarketState {
+  if (frameFlushed.match(action)) {
+    const { symbol, book, trades } = action.payload;
+    // A frame for a symbol we've switched away from is dropped, not merged.
+    if (symbol !== state.symbol) return state;
+
+    let nextTrades = state.trades;
+    const fresh = trades.filter((t) => t.id > state.trades.lastId);
+    if (fresh.length) {
+      const merged = state.trades.items.concat(fresh);
+      nextTrades = {
+        items: merged.length > TAPE_CAPACITY ? merged.slice(merged.length - TAPE_CAPACITY) : merged,
+        seq: state.trades.seq + fresh.length,
+        lastId: fresh[fresh.length - 1]!.id,
       };
-    },
-  },
-  extraReducers: (builder) => {
-    // A frozen book looks live. Clear it the moment the socket isn't open; trades stay (they're history).
-    builder.addCase(statusChanged, (state, action) => {
-      if (action.payload.event.status !== 'open') state.book = emptyBook;
-    });
-  },
-});
-
-export const { frameFlushed } = marketSlice.actions;
-export default marketSlice.reducer;
+    }
+    if (!book && nextTrades === state.trades) return state;
+    return { symbol: state.symbol, book: book ? toBook(book) : state.book, trades: nextTrades };
+  }
+  // A frozen book looks live. Clear it the moment the socket isn't open; trades stay (they're history).
+  if (statusChanged.match(action) && action.payload.event.status !== 'open' && state.book !== emptyBook) {
+    return { ...state, book: emptyBook };
+  }
+  return state;
+}
