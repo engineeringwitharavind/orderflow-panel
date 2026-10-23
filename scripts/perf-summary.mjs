@@ -26,16 +26,18 @@ const pick = (reports, fn) => median(reports.map((r) => { try { return fn(r); } 
 const rows = [
   // Frames actually rendered: a frozen page renders few frames, so "slow frames" alone would flatter it.
   ['**Frames rendered / s**', (r) => Math.round((r.frames.count / r.seconds) * 10) / 10],
-  ['**Main-thread blocking (ms / 30 s)**', (r) => r.longFrames.blockingMs],
+  ['**Frame interval p95 (ms)**', (r) => r.frames.p95],
+  ['Main thread blocked (% of window)', (r) => Math.round((1000 * r.longFrames.blockingMs) / (r.seconds * 1000)) / 10],
   ['Redux dispatches / s', (r) => r.dispatchesPerSecond],
   ['React commits / s', (r) => r.commits.app.perSecond],
   ['Commit time p95 (ms)', (r) => r.commits.app.p95],
   ['Ladder commits / s', (r) => r.commits.ladder?.perSecond ?? 0],
   ['Tape commits / s', (r) => r.commits.tape?.perSecond ?? 0],
-  ['Frame interval p95 (ms)', (r) => r.frames.p95],
   ['Long frames (> 50 ms)', (r) => r.longFrames.count],
   ['DOM nodes', (r) => r.domNodes],
   ['JS heap (MB)', (r) => r.heapMB],
+  // A frozen page can't even end the measurement on time; show how long the 30 s window really ran.
+  ['Measurement window (s)', (r) => r.seconds],
 ];
 
 const configs = [

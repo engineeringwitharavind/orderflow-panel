@@ -10,7 +10,7 @@ import type { Ticks } from '../../market/types';
 import panel from '../layout/Panel.module.css';
 import styles from './Ladder.module.css';
 import { LadderRow, rowId } from './LadderRow';
-import { anchorToShow, centreOf, groupBid, needsRecentre, windowPrices } from './ladderMath';
+import { anchorToShow, barScale, centreOf, groupBid, needsRecentre, windowPrices } from './ladderMath';
 
 export const ROW_HEIGHT = 20;
 const PAGE_ROWS = 10;
@@ -86,11 +86,12 @@ function LadderBody({ symbol, grouping }: { symbol: string; grouping: number }) 
     if (offCentre && (follow || anchor === null)) recentre(store.getState().market.book);
   }, [offCentre, follow, anchor, recentre, store]);
 
-  // Bar scale: one CSS variable on the grid, written directly. When the largest
-  // size changes, no row re-renders; the browser rescales every bar.
+  // Bar scale: one CSS variable on the grid, written directly, so no row
+  // re-renders when the largest size changes. Stepped (barScale) because each
+  // write restyles the whole ladder; useStoreEffect skips unchanged values.
   useStoreEffect(
-    (s) => selectGroupedBook(s).maxSize,
-    (max) => gridRef.current?.style.setProperty('--max', String(max || 1)),
+    (s) => barScale(selectGroupedBook(s).maxSize),
+    (max) => gridRef.current?.style.setProperty('--max', String(max)),
   );
 
   const prices = anchor === null || rows === 0 ? [] : windowPrices(anchor, rows, grouping);

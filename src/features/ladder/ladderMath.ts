@@ -44,3 +44,16 @@ export function anchorToShow(anchor: Ticks, rows: number, g: number, price: Tick
   if (price < bottom) return anchor - (bottom - price);
   return anchor;
 }
+
+/**
+ * Round the bar scale up to steps about 26% apart (10^(k/10)), like a chart axis.
+ * --max is set on the ladder grid, and custom properties inherit, so every write
+ * restyles every element in the ladder (~260 per frame when it changed each tick).
+ * Stepped, it changes only when the largest level crosses a step; the largest
+ * bar still fills at least 79% of its column.
+ */
+export function barScale(maxSize: number): number {
+  if (!(maxSize > 0)) return 1;
+  const step = Math.ceil(10 * Math.log10(maxSize) - 1e-9);
+  return Number((10 ** (step / 10)).toPrecision(6));
+}

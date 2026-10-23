@@ -3,7 +3,7 @@ import { setupStore } from '../../app/store';
 import { frameFlushed } from '../../market/marketSlice';
 import { selectGroupedBook, selectLastTrade } from '../../market/selectors';
 import { setGrouping } from '../../workspace/workspaceSlice';
-import { anchorToShow, centreOf, groupAsk, groupBid, needsRecentre, windowPrices } from './ladderMath';
+import { anchorToShow, barScale, centreOf, groupAsk, groupBid, needsRecentre, windowPrices } from './ladderMath';
 
 describe('ladder maths', () => {
   it('groups bids down and asks up, so one row never holds both sides', () => {
@@ -84,5 +84,22 @@ describe('flash significance', () => {
     expect(isSignificant(1.0, 12, 40)).toBe(true); // +11 ≥ 10: stacking
     expect(isSignificant(15, 0, 40)).toBe(true); // -15: pulled
     expect(isSignificant(0, 5, 0)).toBe(false); // empty book: never
+  });
+});
+
+describe('bar scale steps', () => {
+  it('rounds up to steps ~26% apart, so small changes in the largest size do not rewrite --max', () => {
+    expect(barScale(18.3)).toBe(19.9526);
+    expect(barScale(18.9)).toBe(19.9526); // same step: no write, no restyle
+    expect(barScale(20)).toBe(25.1189); // just past a step: next one up
+    expect(barScale(0)).toBe(1);
+  });
+
+  it('keeps the largest bar at 79% or more of its column', () => {
+    for (const v of [0.003, 0.7, 1, 4.2, 18.3, 99.9, 1234]) {
+      const fill = v / barScale(v);
+      expect(fill).toBeGreaterThan(0.79);
+      expect(fill).toBeLessThanOrEqual(1);
+    }
   });
 });
