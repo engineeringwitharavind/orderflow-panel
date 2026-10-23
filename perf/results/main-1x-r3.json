@@ -1,0 +1,62 @@
+{
+  "label": "main-1x-r3",
+  "options": {
+    "url": "http://localhost:4173",
+    "label": "main-1x-r3",
+    "capture": "btcusdt-60s",
+    "speed": 1,
+    "throttle": 4,
+    "warmup": 5,
+    "seconds": 30,
+    "query": ""
+  },
+  "report": {
+    "seconds": 30,
+    "dispatchesPerSecond": 11.8,
+    "commits": {
+      "ladder": {
+        "count": 272,
+        "perSecond": 9.1,
+        "p50": 0.5,
+        "p95": 1.6,
+        "max": 9.6,
+        "totalMs": 182
+      },
+      "tape": {
+        "count": 79,
+        "perSecond": 2.6,
+        "p50": 2.2,
+        "p95": 5.4,
+        "max": 6.4,
+        "totalMs": 191
+      },
+      "app": {
+        "count": 306,
+        "perSecond": 10.2,
+        "p50": 0.7,
+        "p95": 4.1,
+        "max": 11.6,
+        "totalMs": 378
+      }
+    },
+    "frames": {
+      "count": 1765,
+      "perSecond": 58.8,
+      "p50": 16.7,
+      "p95": 16.8,
+      "max": 66.7,
+      "totalMs": 29989,
+      "over33ms": 10
+    },
+    "longFrames": {
+      "count": 6,
+      "blockingMs": 59,
+      "workMs": 72,
+      "rafMs": 194,
+      "renderMs": 93
+    },
+    "heapMB": 7,
+    "domNodes": 600
+  },
+  "measuredAt": "2026-10-23T17:11:45.719Z"
+}
