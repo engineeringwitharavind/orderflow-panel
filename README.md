@@ -27,8 +27,9 @@ React 19 · TypeScript · Redux Toolkit · react-window · Vite. No UI or CSS li
 Binance sends a full top-of-book snapshot every 100 ms plus every trade, and a busy
 market produces dozens of messages a second without pause. The naive React + Redux
 version dispatches once per message and re-renders the whole ladder and every tape row
-each time. Under load, the main thread never gets a chance to paint. The measurements
-below show it blocked for **28 of every 30 seconds**.
+each time. Under load, the main thread never gets a chance to paint. In the measurements
+below, the naive version renders **under 2 frames a second** in a busy market, and the
+optimised one holds about **50**.
 
 ## Architecture
 
@@ -120,12 +121,21 @@ node scripts/perf-summary.mjs
 
 ### Known limits (measured, not guessed)
 
-- **The tape is the remaining hot spot under heavy throttling.** At 4×, the optimised
-  build still drops frames in the busy scenario. A Chrome trace attributes the largest cost
-  to re-laying-out the ~38 visible tape rows every frame: newest-first means every row's
-  text changes on each update. CSS containment was tried and made no measurable
-  difference, so it was reverted. Next step: cap the tape's refresh at about 10 Hz (faster
-  than anyone reads a tape) or draw it on a canvas. Unthrottled, it holds 60 fps.
+- **What's left is rendering work, not JavaScript.** A Chrome trace of the final build at
+  10× with the tape full (4× throttle) puts most remaining per-frame time in style recalc
+  and layout, which react-window's `scrollTop` read forces inside the frame callback. Two
+  sources:
+  - The ladder's `--max` bar-scale variable restyles the whole ladder when it changes.
+    It's now stepped (see `barScale`), which cut restyled elements by 64%. Writing the
+    scale to the bars alone would cut the rest.
+  - Newest-first changes the text of every visible tape row on every update, so the tape
+    re-lays-out each frame. Next step: cap the tape's refresh at about 10 Hz (faster than
+    anyone reads a tape), or draw it on a canvas.
+
+  CSS containment was tried and made no measurable difference, so it was reverted.
+- **The naive version falls behind the market.** At 10× it handled 6 messages a second
+  while the feed sent about 170; the rest queued. A screen that's minutes behind is worse
+  than a slow one. The optimised build keeps up.
 - **Depth is the top 20 levels.** The partial-depth stream is authoritative on every
   message, so there's no sequence state to get wrong, but grouping has little to show. Full
   depth needs a REST snapshot plus the diff stream with sequence-gap detection and resync.
@@ -153,7 +163,7 @@ node scripts/perf-summary.mjs
 ```bash
 npm ci
 npm run dev            # http://localhost:5173
-npm test               # 52 unit tests
+npm test               # 56 unit tests
 npm run typecheck
 npm run record         # record a new capture: npm run record -- ETHUSDT 120
 ```
