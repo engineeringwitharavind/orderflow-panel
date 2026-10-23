@@ -1,11 +1,24 @@
 import { useRef, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { SPLIT_MAX, SPLIT_MIN, clampSplit, setSplit, type PanelId } from '../../workspace/workspaceSlice';
+import { Probe } from '../../perf/Probe';
 import { Ladder } from '../ladder/Ladder';
 import { Tape } from '../tape/Tape';
 import styles from './SplitLayout.module.css';
 
-const PANELS: Record<PanelId, () => React.JSX.Element> = { ladder: Ladder, tape: Tape };
+// Each panel has its own Profiler so the README can report ladder and tape commits separately.
+const PANELS: Record<PanelId, () => React.JSX.Element> = {
+  ladder: () => (
+    <Probe id="ladder">
+      <Ladder />
+    </Probe>
+  ),
+  tape: () => (
+    <Probe id="tape">
+      <Tape />
+    </Probe>
+  ),
+};
 const KEY_STEP = 0.02;
 
 /**

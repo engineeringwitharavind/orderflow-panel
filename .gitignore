@@ -2,3 +2,6 @@ node_modules
 dist
 *.local
 .DS_Store
+dist-profile
+perf/results/*.tmp.json
+public/captures/*synthetic*

@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { SYMBOLS } from '../../market/symbols';
 import { GROUPINGS, setGrouping, setSymbol, swapPanels, togglePanel } from '../../workspace/workspaceSlice';
+import { useRuntime } from '../../ws/runtime';
 import { ConnectionBadge } from './ConnectionBadge';
 import styles from './Toolbar.module.css';
 
@@ -8,12 +9,13 @@ export function Toolbar() {
   const dispatch = useAppDispatch();
   const symbol = useAppSelector((s) => s.workspace.symbol);
   const { panels, ladderGrouping } = useAppSelector((s) => s.workspace.layout);
+  const { replay } = useRuntime();
 
   return (
     <header className={styles.toolbar}>
       <label className={styles.field}>
         <span>Symbol</span>
-        <select value={symbol} onChange={(e) => dispatch(setSymbol(e.target.value))}>
+        <select value={symbol} disabled={!!replay} onChange={(e) => dispatch(setSymbol(e.target.value))}>
           {SYMBOLS.map((s) => (
             <option key={s.symbol} value={s.symbol}>
               {s.symbol}

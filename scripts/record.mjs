@@ -5,7 +5,7 @@
 //   npm run record -- ETHUSDT 120      # symbol, seconds
 //
 // Uses Node's built-in WebSocket (Node 22+), or the `ws` package on older Node.
-// Writes captures/<symbol>-<seconds>s.json.
+// Writes public/captures/<symbol>-<seconds>s.json (served, so ?replay= works in the deployed app too).
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 const WebSocketImpl = globalThis.WebSocket ?? (await import('ws')).default;
@@ -48,7 +48,7 @@ if (!messages) process.exit(1);
 
 const depth = messages.filter(([, raw]) => raw.includes('@depth')).length;
 const capture = { symbol, seconds, streams, recordedAt: new Date().toISOString(), messages };
-mkdirSync('captures', { recursive: true });
-const file = `captures/${s}-${seconds}s.json`;
+mkdirSync('public/captures', { recursive: true });
+const file = `public/captures/${s}-${seconds}s.json`;
 writeFileSync(file, JSON.stringify(capture));
 console.log(`wrote ${file}: ${messages.length} messages (${depth} depth, ${messages.length - depth} trades)`);

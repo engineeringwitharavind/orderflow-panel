@@ -5,6 +5,8 @@ import type { ConnectionManager } from './ConnectionManager';
 export interface Runtime {
   manager: ConnectionManager;
   batcher: FrameBatcher;
+  /** null when live; the capture name and speed when replaying. */
+  replay: { name: string; speed: number } | null;
 }
 
 const RuntimeContext = createContext<Runtime | null>(null);
