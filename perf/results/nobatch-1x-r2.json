@@ -1,0 +1,62 @@
+{
+  "label": "nobatch-1x-r2",
+  "options": {
+    "url": "http://localhost:4173",
+    "label": "nobatch-1x-r2",
+    "capture": "btcusdt-60s",
+    "speed": 1,
+    "throttle": 4,
+    "warmup": 5,
+    "seconds": 30,
+    "query": "batch=off"
+  },
+  "report": {
+    "seconds": 30,
+    "dispatchesPerSecond": 17.6,
+    "commits": {
+      "ladder": {
+        "count": 276,
+        "perSecond": 9.2,
+        "p50": 0.5,
+        "p95": 1.4,
+        "max": 14.3,
+        "totalMs": 203
+      },
+      "tape": {
+        "count": 83,
+        "perSecond": 2.8,
+        "p50": 2.3,
+        "p95": 4.8,
+        "max": 9.2,
+        "totalMs": 198
+      },
+      "app": {
+        "count": 319,
+        "perSecond": 10.6,
+        "p50": 0.7,
+        "p95": 4.2,
+        "max": 23.5,
+        "totalMs": 407
+      }
+    },
+    "frames": {
+      "count": 1775,
+      "perSecond": 59.1,
+      "p50": 16.7,
+      "p95": 16.8,
+      "max": 100,
+      "totalMs": 30002,
+      "over33ms": 5
+    },
+    "longFrames": {
+      "count": 3,
+      "blockingMs": 63,
+      "workMs": 135,
+      "rafMs": 1,
+      "renderMs": 77
+    },
+    "heapMB": 7,
+    "domNodes": 600
+  },
+  "measuredAt": "2026-10-23T16:32:22.401Z"
+}
