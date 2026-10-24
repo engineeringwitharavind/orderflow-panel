@@ -29,7 +29,8 @@
 
 .links {
   display: flex;
-  gap: 14px;
+  gap: 8px;
+  color: var(--faint);
 }
 
 .links a {
