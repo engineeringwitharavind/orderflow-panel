@@ -1,9 +1,11 @@
-# Orderflow Panel
+# Orderflow panel
 
-A live **DOM ladder** and **trade tape** in the browser, fed by Binance's public WebSocket.
-It's built to handle a firehose of market data without "Redux churn", stay correct across
-browser tabs, and prove every performance claim with a measurement against a deliberately
-naive version.
+A live order book and trade tape that keeps up with a busy market
+
+A **DOM ladder** and **trade tape** in the browser, fed by Binance’s public WebSocket.
+Updates are batched per animation frame, the workspace stays consistent across tabs, and
+every performance number below was measured against a deliberately naive version, with the
+method next to it.
 
 **Live:** [orderflow-panel.vercel.app](https://orderflow-panel.vercel.app) · **Replay** (a real 60 s BTCUSDT capture, works anywhere, no exchange connection): [orderflow-panel.vercel.app/?replay=btcusdt-60s](https://orderflow-panel.vercel.app/?replay=btcusdt-60s)
 
@@ -26,7 +28,7 @@ resuming, ladder grouping at 10 ticks, and the draggable split._
 - **Tape (time & sales).** Every trade, newest first: time, aggressor side, price, size.
   Large prints (≥ 50k USDT) are emphasised.
 - **Workspace.** Symbol, panel visibility and order, ladder grouping and a draggable split.
-  It's shared live across tabs and restored on reload.
+  It’s shared live across tabs and restored on reload.
 
 ## The problem
 
@@ -35,7 +37,7 @@ market produces dozens of messages a second without pause. The naive React + Red
 version dispatches once per message and re-renders the whole ladder and every tape row
 each time. Under load, the main thread never gets a chance to paint. In the measurements
 below, the naive version renders **under 2 frames a second** in a busy market, and the
-optimised one holds about **50**.
+optimised one holds about **55**.
 
 ## Architecture
 
@@ -53,8 +55,8 @@ flowchart LR
 
 | Path | Responsibility |
 |---|---|
-| `src/ws/ConnectionManager.ts` | One socket for every stream. Streams are ref-counted, so the first subscriber sends SUBSCRIBE and the last one leaving sends UNSUBSCRIBE after a 250 ms grace. Reconnects with jittered exponential backoff; the retry counter resets only after a stable connection. Rotates through URLs, replaces silent or hung sockets, and coalesces and throttles control frames to Binance's limit. |
-| `src/ws/useStream.ts` | Ties a subscription to a component's lifetime: hiding a panel unsubscribes its stream. |
+| `src/ws/ConnectionManager.ts` | One socket for every stream. Streams are ref-counted, so the first subscriber sends SUBSCRIBE and the last one leaving sends UNSUBSCRIBE after a 250 ms grace. Reconnects with jittered exponential backoff; the retry counter resets only after a stable connection. Rotates through URLs, replaces silent or hung sockets, and coalesces and throttles control frames to Binance’s limit. |
+| `src/ws/useStream.ts` | Ties a subscription to a component’s lifetime: hiding a panel unsubscribes its stream. |
 | `src/ws/adapters/binance.ts` | Everything Binance-specific: URLs, frame formats, parsing to integer ticks, aggressor side from the `m` flag. |
 | `src/ws/adapters/replay.ts` | Plays a recorded capture through the same manager, as a fake socket. |
 | `src/market/frameBatcher.ts` | Buffers between the socket and Redux. Keeps the latest book and appends trades, then dispatches once per animation frame. Bounded while the tab is hidden. |
@@ -62,7 +64,7 @@ flowchart LR
 | `src/app/store.ts` | One invariant across slices: market data always belongs to the selected symbol, reset in the same dispatch that changes it. |
 | `src/market/selectors.ts` | The grouped book, computed once per update (`createSelector`) and shared by every row. |
 | `src/features/ladder/` | Fixed price grid that recentres only when the market nears an edge. Rows keyed by price and memoised. Bars use `scaleX` driven by one CSS variable written outside React. Flashes only on significant changes. |
-| `src/features/tape/` | react-window list that freezes while you scroll or navigate, with an "N new · back to live" control. |
+| `src/features/tape/` | react-window list that freezes while you scroll or navigate, with an “N new · back to live” control. |
 | `src/workspace/` | Workspace slice with `(rev, origin)` ordering, synchronous rehydration, and BroadcastChannel sync. |
 | `src/perf/` | Profilers and a collector used by the measurement harness. |
 
@@ -82,7 +84,7 @@ flowchart LR
 ### Cross-tab sync and persistence
 
 - **Saved state is read synchronously** from `localStorage` *before* the store is created,
-  so the first render is already correct. There's no async rehydrate step to race against.
+  so the first render is already correct. There’s no async rehydrate step to race against.
 - **Every change is written synchronously.** A debounced write would lose a change made
   just before a reload.
 - **Ordering.** Each local edit bumps `rev` and stamps the tab id. A tab accepts remote
@@ -99,11 +101,11 @@ flowchart LR
 
 ## Performance
 
-**Method.** Measurements use a production build with React's profiler kept on
+**Method.** Measurements use a production build with React’s profiler kept on
 (`npm run build:profile`) and a **real 60 s BTCUSDT capture**
 (`public/captures/btcusdt-60s.json`) replayed identically for every run, one message per task as a real socket delivers
 them, in headless
-Chromium at **4× CPU throttling** (like DevTools' "4× slowdown", roughly a mid-range
+Chromium at **4× CPU throttling** (like DevTools’ “4× slowdown”, roughly a mid-range
 laptop). Each run has a warmup and a 30 s window. The tables show the median of 3 runs.
 Three configurations:
 
@@ -117,10 +119,10 @@ Three configurations:
 
 **What each change bought** (busy market, 10×, tape full):
 
-- **Everything together:** frames rendered went from **1.9/s to 55.2/s**, and frame interval p95 from **667 ms to 33 ms**. The naive build also **fell behind the market**: it handled 6 messages a second while the feed sent about 170, so it never even filled its tape (its DOM peaked at 12,788 nodes against main's constant 600).
+- **Everything together:** frames rendered went from **1.9/s to 55.2/s**, and frame interval p95 from **667 ms to 33 ms**. The naive build also **fell behind the market**: it handled 6 messages a second while the feed sent about 170, so it never even filled its tape (its DOM peaked at 12,788 nodes against main’s constant 600).
 - **Per-frame batching alone** (main vs main with batching off, same code otherwise): **15.3 → 55.2 frames/s**, main thread blocked **43.5% → 0.3%** of the time, React commits **147 → 40 a second**.
-- **In a quiet market** every version keeps roughly 55–59 frames/s, but the optimised build has **3 long frames instead of 44** and is blocked **0.2% instead of 3.8%** of the time. That's headroom for a busier minute.
-- **Commit time p95 is lower with batching off** (2.3 vs 3.9 ms) because each commit handles one message instead of a frame's worth. Per-commit cost is the wrong thing to minimise; total main-thread time is the right one.
+- **In a quiet market** every version keeps roughly 55–59 frames/s, but the optimised build has **3 long frames instead of 44** and is blocked **0.2% instead of 3.8%** of the time. That’s headroom for a busier minute.
+- **Commit time p95 is lower with batching off** (2.3 vs 3.9 ms) because each commit handles one message instead of a frame’s worth. Per-commit cost is the wrong thing to minimise; total main-thread time is the right one.
 
 #### Busy market: the same capture at 10×, tape full (median of 3 runs, 4× CPU throttle)
 
@@ -165,25 +167,25 @@ npm run perf -- --label main-1x-r1 --capture btcusdt-60s
 node scripts/perf-summary.mjs
 ```
 
-### Known limits (measured, not guessed)
+### Known limits
 
-- **What's left is rendering work, not JavaScript.** A Chrome trace of the final build at
+- **What’s left is rendering work, not JavaScript.** A Chrome trace of the final build at
   10× with the tape full (4× throttle) puts most remaining per-frame time in style recalc
-  and layout, which react-window's `scrollTop` read forces inside the frame callback. Two
+  and layout, which react-window’s `scrollTop` read forces inside the frame callback. Two
   sources:
-  - The ladder's `--max` bar-scale variable restyles the whole ladder when it changes.
-    It's now stepped (see `barScale`), which cut restyled elements by 64%. Writing the
+  - The ladder’s `--max` bar-scale variable restyles the whole ladder when it changes.
+    It’s now stepped (see `barScale`), which cut restyled elements by 64%. Writing the
     scale to the bars alone would cut the rest.
   - Newest-first changes the text of every visible tape row on every update, so the tape
-    re-lays-out each frame. Next step: cap the tape's refresh at about 10 Hz (faster than
+    re-lays-out each frame. Next step: cap the tape’s refresh at about 10 Hz (faster than
     anyone reads a tape), or draw it on a canvas.
 
   CSS containment was tried and made no measurable difference, so it was reverted.
 - **The naive version falls behind the market.** At 10× it handled 6 messages a second
-  while the feed sent about 170; the rest queued. A screen that's minutes behind is worse
+  while the feed sent about 170; the rest queued. A screen that’s minutes behind is worse
   than a slow one. The optimised build keeps up.
 - **Depth is the top 20 levels.** The partial-depth stream is authoritative on every
-  message, so there's no sequence state to get wrong, but grouping has little to show. Full
+  message, so there’s no sequence state to get wrong, but grouping has little to show. Full
   depth needs a REST snapshot plus the diff stream with sequence-gap detection and resync.
 - **One socket per tab.** Sharing one connection across tabs (a leader tab chosen with Web
   Locks, then BroadcastChannel) would cut connections.
@@ -202,9 +204,9 @@ node scripts/perf-summary.mjs
   `aria-activedescendant` and one visible focus ring.
   - Ladder: ↑/↓ and PageUp/PageDown move; C recentres.
   - Tape: ↑/↓, PageUp/PageDown and End move; Home or Esc returns to live.
-- Side is written out ("Buy"/"Sell"), not shown only by colour.
+- Side is written out (“Buy”/”Sell”), not shown only by colour.
 - Below 700 px the panels become tabs (both stay mounted, so streams keep running); on wide
-  screens the tape's columns are capped so a row reads as one unit.
+  screens the tape’s columns are capped so a row reads as one unit.
 
 ## Run it
 
