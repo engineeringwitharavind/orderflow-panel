@@ -5,7 +5,7 @@ It's built to handle a firehose of market data without "Redux churn", stay corre
 browser tabs, and prove every performance claim with a measurement against a deliberately
 naive version.
 
-**Live:** _deploying_ · **Replay (works anywhere, no exchange connection):** _deploying_`/?replay=btcusdt-60s`
+**Live:** [orderflow-panel.vercel.app](https://orderflow-panel.vercel.app) · **Replay** (a real 60 s BTCUSDT capture, works anywhere, no exchange connection): [orderflow-panel.vercel.app/?replay=btcusdt-60s](https://orderflow-panel.vercel.app/?replay=btcusdt-60s)
 
 Built with React 19, TypeScript, Redux Toolkit, react-window and Vite. No component library
 or CSS framework: the ladder, tape and controls are hand-built and styled with plain CSS
