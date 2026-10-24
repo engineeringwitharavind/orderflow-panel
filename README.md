@@ -116,7 +116,7 @@ flowchart LR
 (`public/captures/btcusdt-60s.json`) replayed identically for every run, one message per task as a real socket delivers
 them, in headless
 Chromium at **4× CPU throttling** (like DevTools’ “4× slowdown”, roughly a mid-range
-laptop). Each run has a warmup and a 30 s window. The tables show the median of 3 runs.
+laptop). Each run has a warmup and a 30 s window. The numbers were measured at commit `8eeb2eb`, with the ladder at 1-tick grouping; later commits (the build-pattern pass, transform-placed ladder rows, per-symbol default grouping) weren’t re-measured. To compare like for like on a newer build, pass `--group 1`. The tables show the median of 3 runs.
 Three configurations:
 
 - **Baseline** ([`baseline` branch](https://github.com/engineeringwitharavind/orderflow-panel/tree/baseline)):
