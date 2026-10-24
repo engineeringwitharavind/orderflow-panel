@@ -52,25 +52,36 @@
 
 .grid {
   --max: 1;
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
   outline: none;
 }
 
-/* Exactly one focus indicator: the grid's ring until a row is active, then the row's. */
+/* Exactly one focus indicator: the container's inset ring until a row is active,
+   then the row's. Beats the global outset ring (same specificity, later file). */
+.grid:focus-visible {
+  outline: none;
+}
+
 .grid:focus-visible:not([aria-activedescendant]) {
   box-shadow: inset 0 0 0 2px var(--focus);
 }
 
+/* Rows are placed by transform, not by flow: a recentre changes only transforms,
+   which the compositor moves without layout (measured: it was ~all of the page's
+   layout shift while streaming). */
 .row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(calc(var(--i) * var(--row-h)));
   height: var(--row-h);
   line-height: var(--row-h);
   font-size: 12px;
-}
-
-.row + .row {
-  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .grid:focus .row[data-active] {

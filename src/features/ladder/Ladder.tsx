@@ -156,9 +156,10 @@ function LadderBody({ symbol, grouping }: { symbol: string; grouping: number }) 
         {prices.length === 0 ? (
           <div className={styles.empty}>Waiting for the book…</div>
         ) : (
-          prices.map((p) => (
+          prices.map((p, i) => (
             <LadderRow
               key={p}
+              index={i}
               price={p}
               priceLabel={(p * tickSize).toFixed(priceDecimals)}
               qtyDecimals={qtyDecimals}

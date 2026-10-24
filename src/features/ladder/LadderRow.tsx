@@ -12,6 +12,8 @@ interface Props {
   priceLabel: string;
   qtyDecimals: number;
   active: boolean;
+  /** Position in the window. Placed by transform, so a recentre moves rows without layout. */
+  index: number;
 }
 
 export const rowId = (price: Ticks) => `ladder-row-${price}`;
@@ -22,7 +24,7 @@ export const rowId = (price: Ticks) => `ladder-row-${price}`;
  * price: on recentre, rows for prices still on screen keep their instance
  * (and don't flash); only new prices mount.
  */
-export const LadderRow = memo(function LadderRow({ price, priceLabel, qtyDecimals, active }: Props) {
+export const LadderRow = memo(function LadderRow({ price, priceLabel, qtyDecimals, active, index }: Props) {
   const bid = useAppSelector((s) => selectGroupedBook(s).bids.get(price) ?? 0);
   const ask = useAppSelector((s) => selectGroupedBook(s).asks.get(price) ?? 0);
   const lastSide = useAppSelector((s) => {
@@ -38,6 +40,7 @@ export const LadderRow = memo(function LadderRow({ price, priceLabel, qtyDecimal
       role="row"
       id={rowId(price)}
       className={styles.row}
+      style={{ '--i': index } as CSSProperties}
       data-price={price}
       data-active={active || undefined}
     >

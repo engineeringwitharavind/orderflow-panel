@@ -103,7 +103,7 @@ function TapeBody({ symbol }: { symbol: string }) {
           <NewTrades since={frozen.seq} onResume={resume} />
         ) : (
           <span className={styles.meta}>
-            live · <span className="num">{items.length.toLocaleString()}</span> trades
+            live · <span className={`num ${styles.count}`}>{items.length.toLocaleString()}</span> trades
           </span>
         )}
       </h2>

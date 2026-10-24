@@ -50,6 +50,10 @@
   outline: none;
 }
 
+.list:focus-visible {
+  outline: none;
+}
+
 .list:focus-visible:not([aria-activedescendant]) {
   box-shadow: inset 0 0 0 2px var(--focus);
 }
@@ -128,4 +132,11 @@
 
 .columns > span {
   font-size: 11px;
+}
+
+/* Room for the largest count ("5,000"), so the header text doesn't move as it grows. */
+.count {
+  display: inline-block;
+  min-width: 5ch;
+  text-align: right;
 }
