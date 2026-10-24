@@ -18,8 +18,7 @@ Modules.
   <img src="docs/desktop-dark.png" alt="The panel replaying a real BTCUSDT minute: the price ladder grouped at 25 ticks on the left, the trade tape on the right">
 </picture>
 
-<!-- Demo video: in GitHub's editor, drag demo.mp4 onto the empty line below. GitHub uploads it and inserts its link, which plays inline. -->
-
+https://github.com/user-attachments/assets/be9fdbc0-2097-46dc-969b-8b1f094a30cd
 
 _A real 60 s BTCUSDT capture, replayed at 1×. In the video: the tape pausing while scrolled
 and resuming, the ladder regrouped to 50 ticks, and the split dragged._
