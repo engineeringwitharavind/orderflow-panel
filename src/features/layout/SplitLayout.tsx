@@ -1,5 +1,6 @@
-import { useRef, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useMediaQuery } from '../../app/useMediaQuery';
 import { SPLIT_MAX, SPLIT_MIN, clampSplit, setSplit, type PanelId } from '../../workspace/workspaceSlice';
 import { Probe } from '../../perf/Probe';
 import { Ladder } from '../ladder/Ladder';
@@ -20,6 +21,9 @@ const PANELS: Record<PanelId, () => React.JSX.Element> = {
   ),
 };
 const KEY_STEP = 0.02;
+const LABEL: Record<PanelId, string> = { ladder: 'Ladder', tape: 'Tape' };
+/** Below this, two panels side by side cut off their numbers, so they become tabs. */
+export const NARROW_QUERY = '(max-width: 700px)';
 
 /**
  * While dragging, only the --split CSS variable on this element changes: no
@@ -32,6 +36,8 @@ export function SplitLayout() {
   const split = useAppSelector((s) => s.workspace.layout.split);
   const rootRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ left: number; width: number; value: number } | null>(null);
+  const narrow = useMediaQuery(NARROW_QUERY);
+  const [tab, setTab] = useState<PanelId>('ladder');
 
   const [first, second] = panels;
   const First = PANELS[first!];
@@ -43,6 +49,8 @@ export function SplitLayout() {
     );
   }
   const Second = PANELS[second];
+
+  if (narrow) return <PanelTabs panels={[first!, second]} active={panels.includes(tab) ? tab : first!} onSelect={setTab} />;
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     const rect = rootRef.current!.getBoundingClientRect();
@@ -94,6 +102,63 @@ export function SplitLayout() {
         onKeyDown={onKeyDown}
       />
       <Second />
+    </div>
+  );
+}
+
+/**
+ * Phone layout: one panel at a time behind a tab bar. Both panels stay mounted
+ * (the hidden one with the `hidden` attribute), so their streams keep running
+ * and the tape has no gap when you switch back.
+ */
+function PanelTabs({
+  panels,
+  active,
+  onSelect,
+}: {
+  panels: [PanelId, PanelId];
+  active: PanelId;
+  onSelect: (p: PanelId) => void;
+}) {
+  const tabRefs = useRef<Partial<Record<PanelId, HTMLButtonElement | null>>>({});
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const next = panels[(panels.indexOf(active) + 1) % 2]!;
+    onSelect(next);
+    tabRefs.current[next]?.focus();
+  };
+
+  return (
+    <div className={styles.tabs}>
+      <div role="tablist" aria-label="Panels" className={styles.tablist} onKeyDown={onKeyDown}>
+        {panels.map((p) => (
+          <button
+            key={p}
+            ref={(el) => {
+              tabRefs.current[p] = el;
+            }}
+            role="tab"
+            id={`tab-${p}`}
+            aria-selected={p === active}
+            aria-controls={`tabpanel-${p}`}
+            tabIndex={p === active ? 0 : -1}
+            className={styles.tab}
+            onClick={() => onSelect(p)}
+          >
+            {LABEL[p]}
+          </button>
+        ))}
+      </div>
+      {panels.map((p) => {
+        const Panel = PANELS[p];
+        return (
+          <div key={p} role="tabpanel" id={`tabpanel-${p}`} aria-labelledby={`tab-${p}`} hidden={p !== active} className={styles.tabpanel}>
+            <Panel />
+          </div>
+        );
+      })}
     </div>
   );
 }

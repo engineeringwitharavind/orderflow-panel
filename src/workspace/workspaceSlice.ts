@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { DEFAULT_SYMBOL } from '../market/symbols';
+import { DEFAULT_SYMBOL, getSpec } from '../market/symbols';
 import { TAB_ID } from './tabId';
 
 export type PanelId = 'ladder' | 'tape';
@@ -22,13 +22,13 @@ export interface WorkspaceState {
   origin: string;
 }
 
-export const GROUPINGS = [1, 5, 10, 50, 100] as const;
+export const GROUPINGS = [1, 5, 10, 25, 50, 100] as const;
 export const SPLIT_MIN = 0.2;
 export const SPLIT_MAX = 0.8;
 
 export const initialWorkspace: WorkspaceState = {
   symbol: DEFAULT_SYMBOL,
-  layout: { panels: ['ladder', 'tape'], split: 0.5, ladderGrouping: 1 },
+  layout: { panels: ['ladder', 'tape'], split: 0.5, ladderGrouping: getSpec(DEFAULT_SYMBOL).defaultGrouping },
   rev: 0,
   origin: '',
 };
@@ -63,6 +63,8 @@ const workspaceSlice = createSlice({
       reducer(state, action: LocalAction<string>) {
         if (state.symbol === action.payload) return;
         state.symbol = action.payload;
+        // A grouping means a different price range on each symbol, so a new symbol starts at its own default.
+        state.layout.ladderGrouping = getSpec(action.payload).defaultGrouping;
         stamp(state, action);
       },
     },

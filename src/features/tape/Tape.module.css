@@ -9,13 +9,16 @@
   font-weight: 400;
 }
 
-/* Fixed column widths: numbers never push each other around. */
+/* Fixed column widths: numbers never push each other around. Price and size are
+   capped, so on a wide screen a row reads as one unit instead of spreading out. */
 .columns,
 .row {
   display: grid;
-  grid-template-columns: 13ch 5ch minmax(9ch, 1fr) minmax(9ch, 1fr);
+  grid-template-columns: 13ch 5ch minmax(9ch, 14ch) minmax(9ch, 14ch);
   column-gap: 12px;
   padding: 0 10px;
+  /* The row itself stops with its columns, so borders and the large-print tint do too. */
+  max-width: calc(46ch + 56px);
 }
 
 .columns {
@@ -81,8 +84,10 @@
   color: var(--down);
 }
 
-/* Large prints: bolder and tinted, so block trades stand out without motion. */
-.row[data-large] {
+/* Large prints: bolder and tinted, so block trades stand out without motion.
+   Bold goes on the cells, not the row: the columns are sized in ch of the row's
+   font, and a bold row would get wider columns than its neighbours. */
+.row[data-large] > span {
   font-weight: 600;
 }
 

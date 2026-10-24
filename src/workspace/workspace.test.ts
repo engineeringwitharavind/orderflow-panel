@@ -20,6 +20,13 @@ describe('workspace reducer', () => {
     expect(s).toMatchObject({ symbol: 'ETHUSDT', rev: 1, origin: 'tab-a' });
   });
 
+  it('a new symbol starts at its own default grouping', () => {
+    let s = reducer(initialWorkspace, setSymbol('ETHUSDT'));
+    expect(s.layout.ladderGrouping).toBe(1);
+    s = reducer(s, setSymbol('BTCUSDT'));
+    expect(s.layout.ladderGrouping).toBe(25);
+  });
+
   it('does not bump rev for a no-op edit', () => {
     const s = reducer(initialWorkspace, setSymbol(initialWorkspace.symbol));
     expect(s.rev).toBe(0);

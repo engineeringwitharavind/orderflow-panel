@@ -20,8 +20,9 @@ resuming, ladder grouping at 10 ticks, and the draggable split._
 
 - **Ladder (Depth of Market).** A fixed column of prices, with resting buy (bid) sizes on
   the left and sell (ask) sizes on the right. Prices stay still and sizes change, so you
-  watch liquidity appear and disappear. Rows can be grouped (1–100 ticks), and the last
-  trade is marked in the colour of whoever was aggressive.
+  watch liquidity appear and disappear. Rows can be grouped (1–100 ticks), and each symbol
+  opens at a measured default: 25 ticks on BTCUSDT puts liquidity in 57% of visible rows,
+  against 20% at 1 tick. The last trade is marked in the colour of whoever was aggressive.
 - **Tape (time & sales).** Every trade, newest first: time, aggressor side, price, size.
   Large prints (≥ 50k USDT) are emphasised.
 - **Workspace.** Symbol, panel visibility and order, ladder grouping and a draggable split.
@@ -202,13 +203,15 @@ node scripts/perf-summary.mjs
   - Ladder: ↑/↓ and PageUp/PageDown move; C recentres.
   - Tape: ↑/↓, PageUp/PageDown and End move; Home or Esc returns to live.
 - Side is written out ("Buy"/"Sell"), not shown only by colour.
+- Below 700 px the panels become tabs (both stay mounted, so streams keep running); on wide
+  screens the tape's columns are capped so a row reads as one unit.
 
 ## Run it
 
 ```bash
 npm ci
 npm run dev            # http://localhost:5173
-npm test               # 56 unit tests
+npm test               # 57 unit tests
 npm run typecheck
 npm run record         # record a new capture: npm run record -- ETHUSDT 120
 ```

@@ -7,6 +7,7 @@ import { Probe } from './perf/Probe';
 import { setupStore } from './app/store';
 import { FrameBatcher, type BatchMode } from './market/frameBatcher';
 import { TAPE_CAPACITY } from './market/marketSlice';
+import { getSpec } from './market/symbols';
 import './styles/tokens.css';
 import './styles/base.css';
 import { ConnectionManager } from './ws/ConnectionManager';
@@ -30,7 +31,8 @@ if (replay) {
   // A replay tab is an isolated harness: the capture's symbol, no saved state, no cross-tab sync,
   // so a live tab can't switch it to a symbol the capture doesn't have.
   const symbol = replay.name.split('-')[0]!.toUpperCase();
-  store = setupStore({ workspace: { ...initialWorkspace, symbol } });
+  const layout = { ...initialWorkspace.layout, ladderGrouping: getSpec(symbol).defaultGrouping };
+  store = setupStore({ workspace: { ...initialWorkspace, symbol, layout } });
 } else {
   // 1. Saved workspace, read synchronously: the store is born with it, so there is
   //    no "defaults first, saved state later" render to race against.

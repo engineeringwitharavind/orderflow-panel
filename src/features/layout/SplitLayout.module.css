@@ -31,3 +31,33 @@
 .divider:focus-visible::after {
   background: var(--line2);
 }
+
+/* Phone: tab bar, then one full-width panel. */
+.tabs {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.tablist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.tab {
+  height: 32px;
+  color: var(--faint);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--fg);
+  border-color: var(--faint);
+}
+
+.tabpanel {
+  min-height: 0;
+  height: 100%;
+}
