@@ -48,8 +48,31 @@ at the change.
 | 19 | **The default BTC grouping, reasoned instead of measured.** From how wide Binance’s 20 levels spread, 10 ticks looked right (and was my suggestion too). The share image at 10 ticks still showed a mostly empty ladder. | **My review of the deployed site**, then the share image | Measured fill of the visible rows over all 600 snapshots: 1 tick 20%, 10 ticks 30%, **25 ticks 57%**, 50 ticks 50%. Default is 25; 25 was added to the grouping options |
 | 20 | **A bold large-print row was wider than its neighbours.** The tape’s columns are sized in `ch`, which comes from the row’s own font, so a bold row got wider columns. | The wide-screen screenshot after capping the tape’s columns; then measuring column edges | Bold on the cells, not the row: column edges now match exactly |
 | 21 | **Two “Ladder / Tape” controls on a phone.** The new tab bar duplicated the toolbar’s show/hide toggles. | The phone screenshot | The toolbar’s panel group hides below 700 px |
+| 22 | **No way back to a hidden panel on a phone.** Hiding the tape on desktop carried over to the phone layout, which showed one tab, and the toolbar’s show/hide is hidden there. | **Me, checking the phone view** | Phone tabs always offer both panels; visibility is a desktop split setting (`01a1669`) |
+| 23 | Rewriting the header links dropped `target="_blank"`. Inside the site’s iframe they would have navigated the frame to GitHub, which refuses to be framed: a blank box. | Review of the diff before committing | Restored (`abdd034`) |
+| 24 | **Header columns didn’t line up with the rows.** Headers were 11 px and rows 12 px, and the columns are in `ch`, which follows each element’s own font: header columns were up to 29 px short. | Measuring column edges while moving data labels to Geist Mono | Headers and rows share one font and base size; only the header text is smaller (`efb5d0e`) |
+| 25 | After a fast move, one painted frame could show the book off the visible window: React painted with the old anchor before the `useEffect` recentred. | A 592 px embed screenshot | Recentre in a layout effect, before paint. A per-frame probe at 10× saw no empty side in 899 frames (`f166eac`) |
+| 26 | **Layout shift while streaming: CLS 0.19–0.51.** Ladder rows, keyed by price, moved through layout on every recentre. | The brief’s check, then layout-shift attribution | Rows placed with `transform: translateY`; tape count width reserved. CLS 0.0001–0.0004 in all six configurations (`76c8bee`) |
+| 27 | **Two focus indicators on the ladder and tape.** The new global ring has the same specificity as the containers’ `outline: none` and loads later, so it won and drew a clipped line above the active row’s ring. My automated check passed it, since it only asked whether some ring existed. | A screenshot of keyboard focus | The containers opt out explicitly; one ring in each state (`76c8bee`) |
 
 Several test failures turned out to be mistakes in the tests, not the code: a handshake
 message still in flight, the watchdog’s check interval, Map ordering, and one ask grouped
 into the wrong row. Each was diagnosed before anything was changed, and only the test was
 fixed.
+
+## Bringing it in line with the build pattern
+
+The brief: identity, voice, shared tokens, embedding, copy. The pattern was reviewed as a
+list first, then applied in small commits:
+
+- Header **Orderflow panel** · A live order book and trade tape that keeps up with a busy
+  market, with Source · How it was built · Home; title, description and share card to match.
+- Tokens, focus, link and selection styles aligned; `--warn` for “Reconnecting”; data
+  labels in Geist Mono.
+- Theme follows the system only, as the pattern now says; no override.
+- Embedding allowed for the app, engineeringwitharavind.com and localhost through
+  `frame-ancestors`, tested both ways with a local server sending the same header.
+- One decision kept against the brief: BTCUSDT opens at 25 ticks, not 10, because the
+  capture measurement gives 57% of visible rows holding liquidity at 25 against 30% at 10.
+- Checked at 390 px and 1440 px, both themes, and the replay inside a 592 px iframe: no
+  clipped numbers, no sideways scroll, CLS under 0.001, keyboard focus visible at every stop.
