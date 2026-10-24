@@ -47,7 +47,14 @@ select:hover {
   border-color: var(--faint);
 }
 
+/* One visible ring, outside the control. Rows inside scroll containers use an
+   inset ring instead (see the ladder and tape), since an outset one is clipped. */
 :focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: -2px;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
 }

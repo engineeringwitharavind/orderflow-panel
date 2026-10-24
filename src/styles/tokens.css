@@ -11,6 +11,7 @@
   --well: #171716;
   --up: oklch(0.78 0.14 150);
   --down: oklch(0.66 0.17 25);
+  --warn: oklch(0.74 0.16 45);
   /* Bars are the side colour at low alpha, so they stay legible behind text. */
   --up-bar: oklch(0.78 0.14 150 / 0.16);
   --down-bar: oklch(0.66 0.17 25 / 0.16);
@@ -33,6 +34,7 @@
     --well: #f2f1ec;
     --up: oklch(0.5 0.14 150);
     --down: oklch(0.55 0.19 25);
+    --warn: oklch(0.54 0.17 40);
     --up-bar: oklch(0.5 0.14 150 / 0.14);
     --down-bar: oklch(0.55 0.19 25 / 0.14);
   }

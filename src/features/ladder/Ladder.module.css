@@ -7,6 +7,8 @@
 .meta {
   color: var(--faint);
   font-weight: 400;
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
 }
 
 .body {
@@ -21,12 +23,16 @@
 .columns,
 .row {
   display: grid;
+  /* Same font and size on headers and rows: the columns are in ch, which follows
+     the element's own font. Header text is made smaller on its spans instead. */
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
   grid-template-columns: minmax(0, 1fr) 11ch minmax(0, 1fr);
 }
 
 .columns {
   padding: 4px 0;
-  font-size: 11px;
   color: var(--faint);
   border-bottom: 1px solid var(--line);
 }
@@ -166,4 +172,8 @@
   background: var(--bg);
   border: 1px solid var(--line2);
   border-radius: 4px;
+}
+
+.columns > span {
+  font-size: 11px;
 }
