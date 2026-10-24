@@ -13,10 +13,21 @@ Built with React 19, TypeScript, Redux Toolkit, react-window and Vite. No compon
 or CSS framework: the ladder, tape and controls are hand-built and styled with plain CSS
 Modules.
 
-![Ladder and tape replaying a real BTCUSDT capture: the tape pauses when scrolled and resumes, the ladder regroups to 10 ticks, the split is dragged](docs/demo.gif)
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/desktop-light.png">
+  <img src="docs/desktop-dark.png" alt="The panel replaying a real BTCUSDT minute: the price ladder grouped at 25 ticks on the left, the trade tape on the right">
+</picture>
 
-_Replaying a real 60 s BTCUSDT capture at 1×. Shown: the tape pausing while scrolled and
-resuming, ladder grouping at 10 ticks, and the draggable split._
+<!-- Demo video: in GitHub's editor, drag demo.mp4 onto the empty line below. GitHub uploads it and inserts its link, which plays inline. -->
+
+
+_A real 60 s BTCUSDT capture, replayed at 1×. In the video: the tape pausing while scrolled
+and resuming, the ladder regrouped to 50 ticks, and the split dragged._
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/phone-light.png">
+  <img src="docs/phone-dark.png" alt="At phone width the ladder and tape switch with tabs" width="560">
+</picture>
 
 ## What it shows
 
