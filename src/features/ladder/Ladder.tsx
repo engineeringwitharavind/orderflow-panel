@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useStore } from 'react-redux';
 import { useAppSelector } from '../../app/hooks';
 import type { RootState } from '../../app/store';
@@ -82,7 +82,9 @@ function LadderBody({ symbol, grouping }: { symbol: string; grouping: number }) 
   const store = useStore<RootState>();
   const readBook = () => store.getState().market.book;
 
-  useEffect(() => {
+  // A layout effect, not useEffect: when the market jumps out of the window, the
+  // recentre must happen before paint, or one frame shows the book off-screen.
+  useLayoutEffect(() => {
     if (offCentre && (follow || anchor === null)) recentre(store.getState().market.book);
   }, [offCentre, follow, anchor, recentre, store]);
 
