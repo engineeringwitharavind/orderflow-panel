@@ -40,6 +40,14 @@ export function SplitLayout() {
   const [tab, setTab] = useState<PanelId>('ladder');
 
   const [first, second] = panels;
+  // Phone: both panels are always tabs. Hiding a panel is a setting for the desktop
+  // split; carried over here it would leave one tab and no way back (the toolbar's
+  // show/hide is hidden on phones).
+  if (narrow) {
+    const order: [PanelId, PanelId] = second ? [first!, second] : first === 'tape' ? ['tape', 'ladder'] : ['ladder', 'tape'];
+    return <PanelTabs panels={order} active={tab} onSelect={setTab} />;
+  }
+
   const First = PANELS[first!];
   if (!second) {
     return (
@@ -49,8 +57,6 @@ export function SplitLayout() {
     );
   }
   const Second = PANELS[second];
-
-  if (narrow) return <PanelTabs panels={[first!, second]} active={panels.includes(tab) ? tab : first!} onSelect={setTab} />;
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     const rect = rootRef.current!.getBoundingClientRect();
