@@ -7,9 +7,14 @@ naive version.
 
 **Live:** _deploying_ · **Replay (works anywhere, no exchange connection):** _deploying_`/?replay=btcusdt-60s`
 
-React 19 · TypeScript · Redux Toolkit · react-window · Vite. No UI or CSS libraries.
+Built with React 19, TypeScript, Redux Toolkit, react-window and Vite. No component library
+or CSS framework: the ladder, tape and controls are hand-built and styled with plain CSS
+Modules.
 
-![Ladder and tape replaying a real BTCUSDT capture](docs/screenshot.png)
+![Ladder and tape replaying a real BTCUSDT capture: the tape pauses when scrolled and resumes, the ladder regroups to 10 ticks, the split is dragged](docs/demo.gif)
+
+_Replaying a real 60 s BTCUSDT capture at 1×. Shown: the tape pausing while scrolled and
+resuming, ladder grouping at 10 ticks, and the draggable split._
 
 ## What it shows
 
