@@ -5,7 +5,7 @@
 //   npm run perf -- --label after-no-batch --capture btcusdt-60s --query batch=off
 //
 // Options: --url (http://localhost:4173) --capture --speed (1) --throttle (4, CPU slowdown like
-// DevTools' "4x") --warmup (5 s) --seconds (30 s) --query (extra URL params).
+// DevTools' "4x") --warmup (5 s) --seconds (30 s) --query (extra URL params) --group (ladder ticks).
 // First run on a new machine: npx playwright install chromium
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -22,6 +22,9 @@ const opts = {
   warmup: Number(args.warmup ?? 5),
   seconds: Number(args.seconds ?? 30),
   query: args.query ?? '',
+  // Ladder grouping in ticks, set through the app's own control after load, so builds
+  // with different defaults are measured at the same grouping.
+  group: args.group ?? null,
 };
 
 const browser = await chromium.launch(
@@ -40,6 +43,7 @@ const query = new URLSearchParams({ replay: opts.capture, speed: String(opts.spe
 for (const [k, v] of new URLSearchParams(opts.query)) query.set(k, v);
 await page.goto(`${opts.url}/?${query}`);
 await page.waitForFunction(() => document.querySelectorAll('[role=grid] [role=row]').length > 0, null, { timeout: 30_000 });
+if (opts.group) await page.selectOption('select >> nth=1', String(opts.group));
 await page.waitForTimeout(opts.warmup * 1000);
 
 await page.evaluate(() => window.__perf.start());
